@@ -13,14 +13,15 @@ end = 5
 traj_gen = Sinusoidal(np.array([0., 1.]), np.array([2., 2.]), np.array([0., 0.]))
 # traj_gen = Poly3(np.array([0., 0.]), np.array([pi/4, pi/6]), end)
 
-b_est_1 = None
-b_est_2 = None
-kp_est_1 = None
-kp_est_2 = None
-kd_est_1 = None
-kd_est_2 = None
-p1 = None
-p2 = None
+kp_est_1 = 80.0
+kp_est_2 = 100.0
+
+kd_est_1 = 24.0
+kd_est_2 = 24.0
+
+p1 = 50.0
+p2 = 20.0
+
 
 q0, qdot0, _ = traj_gen.generate(0.)
 q1_0 = np.array([q0[0], qdot0[0]])
@@ -37,27 +38,75 @@ Q, Q_d, u, T = simulate("PYBULLET", traj_gen, controller, Tp, end)
 
 eso = np.array(controller.eso.states)
 
-plt.subplot(221)
-plt.plot(T, eso[:, 0])
-plt.plot(T, Q[:, 0], 'r')
-plt.subplot(222)
-plt.plot(T, eso[:, 2])
-plt.plot(T, Q[:, 2], 'r')
-plt.subplot(223)
-plt.plot(T, eso[:, 1])
-plt.plot(T, Q[:, 1], 'r')
-plt.subplot(224)
-plt.plot(T, eso[:, 3])
-plt.plot(T, Q[:, 3], 'r')
-plt.show()
+plt.figure("ADRC + FLC - estymacja ESO", figsize=(10, 7))
 
 plt.subplot(221)
-plt.plot(T, Q[:, 0], 'r')
-plt.plot(T, Q_d[:, 0], 'b')
+plt.plot(T, eso[:, 0], label="estymowane q1")
+plt.plot(T, Q[:, 0], "r", label="rzeczywiste q1")
+plt.title("ESO: pozycja stawu 1")
+plt.xlabel("czas [s]")
+plt.ylabel("q1 [rad]")
+plt.legend()
+plt.grid(True)
+
 plt.subplot(222)
-plt.plot(T, Q[:, 1], 'r')
-plt.plot(T, Q_d[:, 1], 'b')
+plt.plot(T, eso[:, 2], label="estymowane q1_dot")
+plt.plot(T, Q[:, 2], "r", label="rzeczywiste q1_dot")
+plt.title("ESO: prędkość stawu 1")
+plt.xlabel("czas [s]")
+plt.ylabel("q1_dot [rad/s]")
+plt.legend()
+plt.grid(True)
+
 plt.subplot(223)
-plt.plot(T, u[:, 0], 'r')
-plt.plot(T, u[:, 1], 'b')
+plt.plot(T, eso[:, 1], label="estymowane q2")
+plt.plot(T, Q[:, 1], "r", label="rzeczywiste q2")
+plt.title("ESO: pozycja stawu 2")
+plt.xlabel("czas [s]")
+plt.ylabel("q2 [rad]")
+plt.legend()
+plt.grid(True)
+
+plt.subplot(224)
+plt.plot(T, eso[:, 3], label="estymowane q2_dot")
+plt.plot(T, Q[:, 3], "r", label="rzeczywiste q2_dot")
+plt.title("ESO: prędkość stawu 2")
+plt.xlabel("czas [s]")
+plt.ylabel("q2_dot [rad/s]")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+plt.figure("ADRC + FLC - śledzenie trajektorii i sterowanie", figsize=(10, 7))
+
+plt.subplot(221)
+plt.plot(T, Q[:, 0], "r", label="rzeczywiste q1")
+plt.plot(T, Q_d[:, 0], "b", label="zadane q1")
+plt.title("Śledzenie trajektorii: staw 1")
+plt.xlabel("czas [s]")
+plt.ylabel("q1 [rad]")
+plt.legend()
+plt.grid(True)
+
+plt.subplot(222)
+plt.plot(T, Q[:, 1], "r", label="rzeczywiste q2")
+plt.plot(T, Q_d[:, 1], "b", label="zadane q2")
+plt.title("Śledzenie trajektorii: staw 2")
+plt.xlabel("czas [s]")
+plt.ylabel("q2 [rad]")
+plt.legend()
+plt.grid(True)
+
+plt.subplot(223)
+plt.plot(T, u[:, 0], "r", label="moment u1")
+plt.plot(T, u[:, 1], "b", label="moment u2")
+plt.title("Sygnały sterujące ADRC + FLC")
+plt.xlabel("czas [s]")
+plt.ylabel("moment [Nm]")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
 plt.show()
